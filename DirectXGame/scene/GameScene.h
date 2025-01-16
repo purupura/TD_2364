@@ -43,6 +43,11 @@ private: // メンバ変数
 	/// ゲームシーン用
 	/// </summary>
 	// テクスチャハンドル
-
+	uint32_t textureHandle_ = 0;
+	// 3Dモデル
+	Model* model_ = nullptr;
+	Model* modelBlock_ = nullptr;
+	// ワールドトランスフォーム
+	WorldTransform worldTransform_;
 
 };
