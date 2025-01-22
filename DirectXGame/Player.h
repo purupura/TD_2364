@@ -37,8 +37,8 @@ private:
 
 	KamataEngine::Vector3 velocity_ = {0, 0, 0};
 
-	static inline const float kJumpAcceleration = 8.0f;
-	static inline const float kLimitFallSpeed = 0.3f;
+	static inline const float kJumpAcceleration = 1.0f;
+	static inline const float kLimitFallSpeed = 0.03f;
 	bool onGround_ = true;
 
 	static inline const float kGravityAcceleration = 0.5f;

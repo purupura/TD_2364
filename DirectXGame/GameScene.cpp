@@ -10,7 +10,11 @@ GameScene::~GameScene() {
 	delete player_;
 	//delete enemy_;
 	//delete debugCamera_;
-	//delete modelSkydome_;
+	delete modelSkydome_;
+	delete field_;
+	delete hpBarSprite_;
+	delete hpBarSprite2_;
+	delete hpBarSprite3_;
 }
 
 void GameScene::Initialize() {
@@ -21,11 +25,13 @@ void GameScene::Initialize() {
 
 	player_ = new Player();
 	//enemy_ = new Enemy();
-	//skydome_ = new Skydome();
+	skydome_ = new Skydome();
+	field_ = new field();
 	// 3Dモデルの生成
 	modelPlayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
 	//modelEnemy_ = KamataEngine::Model::CreateFromOBJ("cube", true);
-	//modelSkydome_ = KamataEngine::Model::CreateFromOBJ("skydome", true);
+	modelSkydome_ = KamataEngine::Model::CreateFromOBJ("skydome", true);
+	modelField_ = KamataEngine::Model::CreateFromOBJ("field", true);
 
 	// ビュープロジェクションの初期化
 	camera_.Initialize();
@@ -33,7 +39,8 @@ void GameScene::Initialize() {
 	// playerPos.z = 0;
 	player_->Initialize(modelPlayer_, &camera_, playerPos);
 	//enemy_->Initialize(modelEnemy_, &camera_, enemyPos);
-	//skydome_->Initialize(modelSkydome_, &camera_);
+	skydome_->Initialize(modelSkydome_, &camera_);
+	field_->Initialize(modelField_, &camera_,fieldPos);
 
 	debugCamera_ = new DebugCamera(1280, 720);
 
@@ -44,8 +51,12 @@ void GameScene::Initialize() {
 
 	// 敵キャラに自キャラのアドレスを渡す
 	//enemy_->SetPlayer(player_);
-
-
+	hpBarTextureHandle_ = KamataEngine::TextureManager::Load("hpBarFront.png");
+	hpBarTextureHandle2_ = KamataEngine::TextureManager::Load("hpBarBuck.png");
+	hpBarTextureHandle3_ = KamataEngine::TextureManager::Load("hpBarflame.png");
+	hpBarSprite_ = KamataEngine::Sprite::Create(hpBarTextureHandle_, {120, 10});
+	hpBarSprite2_ = KamataEngine::Sprite::Create(hpBarTextureHandle2_, {120, 10});
+	hpBarSprite3_ = KamataEngine::Sprite::Create(hpBarTextureHandle3_, {120, 10});
 }
 
 void GameScene::Update() {
@@ -53,6 +64,23 @@ void GameScene::Update() {
 	
 	debugCamera_->Update();
 	//CheckAllCollisions();
+
+	KamataEngine::Vector2 size = hpBarSprite_->GetSize();
+
+	size.x = nowSodaGage / maxSodaGage * width;
+	size.y = 50.0f;
+
+	 hpBarSprite_->SetSize(size);
+
+	 if (input_->PushKey(DIK_SPACE)) {
+		 nowSodaGage -= 1;
+	 }
+	
+	nowSodaGage -= 1;
+	
+	if (nowSodaGage <= 0) {
+		nowSodaGage = 0;
+	}
 
 #ifdef _DEBUG
 
@@ -76,12 +104,20 @@ void GameScene::Draw() {
 
 	// コマンドリストの取得
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
-
+	dxCommon_->ClearDepthBuffer();
 #pragma region 背景スプライト描画
 	// 背景スプライト描画前処理
-	Sprite::PreDraw(commandList);
-	Sprite::PostDraw();
-	dxCommon_->ClearDepthBuffer();
+
+	KamataEngine::Sprite::PreDraw(commandList);
+
+	
+	
+	hpBarSprite2_->Draw();
+	hpBarSprite_->Draw();
+	hpBarSprite3_->Draw();
+	KamataEngine::Sprite::PostDraw();
+
+	
 	KamataEngine::Model::PreDraw(commandList);
 
 	/// <summary>
@@ -89,7 +125,9 @@ void GameScene::Draw() {
 
 	player_->Draw();
 	
-	//skydome_->Draw();
+	skydome_->Draw();
+
+	field_->Draw();
 
 	/// </summary>
 

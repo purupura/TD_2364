@@ -14,6 +14,7 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera
 	worldtransfrom_.translation_ = pos;
 	input_ = KamataEngine::Input::GetInstance();
 	worldtransfrom_.Initialize();
+	
 }
 
 
@@ -40,9 +41,8 @@ void Player::Update() {
 	const float kCharacterSpeed = 0.3f;
 	// 回転速さ[ラジアン/frame]
 	const float kRotSpeed = 0.02f;
-	if (onGround_) {
 
-		// 押した方向で移動ベクトルを変更(左右)
+	// 押した方向で移動ベクトルを変更(左右)
 		if (input_->PushKey(DIK_LEFT)) {
 			move.x -= kCharacterSpeed;
 		} else if (input_->PushKey(DIK_RIGHT)) {
@@ -50,32 +50,34 @@ void Player::Update() {
 		}
 
 		// 押した方向で移動ベクトルを変更(上)
-		if (input_->TriggerKey(DIK_SPACE)) {
+		if (input_->PushKey(DIK_SPACE)) {
 			move.y += kJumpAcceleration;
 
 		} else  {
 			// 落下速度
 			move.y -= kGravityAcceleration;
-			
-
 		}
 
 		// 押した方向で移動ベクトルを変更
 		if (input_->PushKey(DIK_A)) {
-			worldtransfrom_.rotation_.y += kRotSpeed;
+			worldtransfrom_.rotation_.z += kRotSpeed;
 		} else if (input_->PushKey(DIK_D)) {
-			worldtransfrom_.rotation_.y -= kRotSpeed;
+			worldtransfrom_.rotation_.z -= kRotSpeed;
 		}
-	}
+	
 	worldtransfrom_.translation_.x += move.x;
 	worldtransfrom_.translation_.y += move.y;
 
-	const float kMoveLimitX = 30;
-	const float kMoveLimitY = 15;
+	const float kMoveLimitX = 6;
+	const float kMoveLimitY = 10;
 
 	worldtransfrom_.translation_.x = std::clamp(worldtransfrom_.translation_.x, -kMoveLimitX, kMoveLimitX);
 	worldtransfrom_.translation_.y = std::clamp(worldtransfrom_.translation_.y, -kMoveLimitY, kMoveLimitY);
 
+	 ImGui::Begin("Setmove");
+	 ImGui::SliderFloat("Move X", &worldtransfrom_.translation_.x, -1.0f, 1.0f);
+	 ImGui::SliderFloat("Move Y", &worldtransfrom_.translation_.y, -1.0f, 1.0f);
+	 ImGui::End();
 
 	worldtransfrom_.updateMatrix();
 }
