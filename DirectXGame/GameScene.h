@@ -1,46 +1,43 @@
 #pragma once
+//#include "Enemy.h"
 #include "KamataEngine.h"
-
+#include "Player.h"
+//#include "Skydome.h"
 using namespace KamataEngine;
 
-/// <summary>
-/// ゲームシーン
-/// </summary>
 class GameScene {
-
-public: // メンバ関数
-	/// <summary>
-	/// コンストクラタ
-	/// </summary>
+public:
 	GameScene();
-
-	/// <summary>
-	/// デストラクタ
-	/// </summary>
 	~GameScene();
 
-	/// <summary>
-	/// 初期化
-	/// </summary>
 	void Initialize();
-
-	/// <summary>
-	/// 毎フレーム処理
-	/// </summary>
 	void Update();
-
-	/// <summary>
-	/// 描画
-	/// </summary>
 	void Draw();
 
-private: // メンバ変数
+	//void CheckAllCollisions();
+
+private:
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
-	/// <summary>
-	/// ゲームシーン用
-	/// </summary>
-	///
+	Player* player_ = nullptr;
+	//Enemy* enemy_ = nullptr;
+	//Skydome* skydome_ = nullptr;
+	Vector3 playerPos = {};
+	Vector3 enemyPos = {0, 3, 100};
+
+	Model* modelPlayer_ = nullptr;
+	Model* modelEnemy_ = nullptr;
+	Model* modelSkydome_ = nullptr;
+
+	uint32_t textureHandle_ = 0;
+	uint32_t enemyTextureHandle_ = 0;
+
+	// std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+	Camera camera_;
+
+	bool isDebugCameraActive_ = false;
+	// デバックカメラ
+	DebugCamera* debugCamera_ = nullptr;
 };
