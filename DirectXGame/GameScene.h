@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Skydome.h"
 #include "field.h"
+#include <random>
 
 using namespace KamataEngine;
 
@@ -17,8 +18,11 @@ public:
 	void Draw();
 
 	void SodaGage();
+	void ClearTime();
 
-	//void CheckAllCollisions();
+	void CheckAllCollisions();
+
+
 
 private:
 	DirectXCommon* dxCommon_ = nullptr;
@@ -28,19 +32,21 @@ private:
 	Player* player_ = nullptr;
 	std::list<Enemy*> enemies_;
 	Skydome* skydome_ = nullptr;
-	field* field_ = nullptr;
-	
-	Vector3 playerPos = {0,-10,0};
-	Vector3 fieldPos = {0, -10, 0};
+	std::list<field*> fields_;
 
+
+	
+	Vector3 playerPos = {0,-10.0,0};
+	Vector3 fieldPos = {0, 0, 500};
 	Model* modelPlayer_ = nullptr;
 	Model* modelEnemy_ = nullptr;
 	Model* modelSkydome_ = nullptr;
 	Model* modelField_ = nullptr;
 
+
 	uint32_t textureHandle_ = 0;
 	uint32_t enemyTextureHandle_ = 0;
-
+	
 	Camera camera_;
 
 	bool isDebugCameraActive_ = false;
@@ -57,4 +63,10 @@ private:
 	Sprite* hpBarSprite_ = nullptr;
 	Sprite* hpBarSprite2_ = nullptr;
 	Sprite* hpBarSprite3_ = nullptr;
+
+	float startTimer = 60 * 3;
+	float goalTimer = 60 * 120;
+
+	int iMin = 20;
+	int iMax = 70;
 };

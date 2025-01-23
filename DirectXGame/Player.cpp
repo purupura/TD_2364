@@ -1,6 +1,7 @@
 #include "Player.h"
 #include <algorithm>
 #include <cassert>
+#include "GameScene.h"
 
 Player::~Player() {
 
@@ -39,31 +40,28 @@ void Player::Update() {
 
 	// キャラクターの移動速さ
 	const float kCharacterSpeed = 0.3f;
-	// 回転速さ[ラジアン/frame]
-	const float kRotSpeed = 0.02f;
+
 
 	// 押した方向で移動ベクトルを変更(左右)
 		if (input_->PushKey(DIK_LEFT)) {
 			move.x -= kCharacterSpeed;
+		    isR_ = false;
+			isL_ = true; 
 		} else if (input_->PushKey(DIK_RIGHT)) {
 			move.x += kCharacterSpeed;
+		    isL_ = false;
+		    isR_ = true;
 		}
 
-		// 押した方向で移動ベクトルを変更(上)
-		if (input_->PushKey(DIK_SPACE)) {
-			move.y += kJumpAcceleration;
+		//// 押した方向で移動ベクトルを変更(上)
+		//if (input_->PushKey(DIK_SPACE)) {
+		//	move.y += kJumpAcceleration;
 
-		} else  {
-			// 落下速度
-			move.y -= kGravityAcceleration;
-		}
+		//} else  {
+		//	// 落下速度
+		//	move.y -= kGravityAcceleration;
+		//}
 
-		// 押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_A)) {
-			worldtransfrom_.rotation_.z += kRotSpeed;
-		} else if (input_->PushKey(DIK_D)) {
-			worldtransfrom_.rotation_.z -= kRotSpeed;
-		}
 	
 	worldtransfrom_.translation_.x += move.x;
 	worldtransfrom_.translation_.y += move.y;
@@ -77,6 +75,7 @@ void Player::Update() {
 	 ImGui::Begin("Setmove");
 	 ImGui::SliderFloat("Move X", &worldtransfrom_.translation_.x, -1.0f, 1.0f);
 	 ImGui::SliderFloat("Move Y", &worldtransfrom_.translation_.y, -1.0f, 1.0f);
+	 ImGui::SliderFloat("Move Z", &worldtransfrom_.translation_.z, -1.0f, 1.0f);
 	 ImGui::End();
 
 	worldtransfrom_.updateMatrix();
@@ -87,3 +86,35 @@ void Player::Draw() {
 	model_->Draw(worldtransfrom_, *camera_);
 
 }
+
+AABB Player::GetAABB() {
+	KamataEngine::Vector3 worldPos = GetWorldPosition();
+
+	AABB aabb;
+
+	aabb.min = {worldPos.x - kWidth / 2.0f, worldPos.y - kHeight / 2.0f, worldPos.z - kWidth / 2.0f};
+	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
+
+	return aabb;
+}
+
+void Player::OnCollision() {
+	// キャラクターの移動ベクトル
+	KamataEngine::Vector3 move = {0, 0, 0};
+
+	// キャラクターの移動速さ
+	const float kCharacterSpeed = 1.0f;
+	if (isL_==true) {
+		move.x -= kCharacterSpeed;
+	} else if (isR_ == true) {
+		move.x += kCharacterSpeed;
+	} else {
+		move.x -= kCharacterSpeed;
+	}
+
+
+	worldtransfrom_.translation_.x += move.x;
+	worldtransfrom_.translation_.z += move.z;
+	worldtransfrom_.updateMatrix();
+}
+

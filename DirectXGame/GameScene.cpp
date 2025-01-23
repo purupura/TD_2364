@@ -10,16 +10,21 @@ GameScene::~GameScene() {
 	delete player_;
 	delete debugCamera_;
 	delete modelSkydome_;
-	delete field_;
 	delete hpBarSprite_;
 	delete hpBarSprite2_;
 	delete hpBarSprite3_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
+	for (field* field : fields_) {
+		delete field;
+	}
 }
 
 void GameScene::Initialize() {
+	std::random_device seed;
+	std::mt19937 random(seed());
+	std::uniform_int_distribution<> number(iMin, iMax);
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -27,7 +32,6 @@ void GameScene::Initialize() {
 
 	player_ = new Player();
 	skydome_ = new Skydome();
-	field_ = new field();
 	// 3Dモデルの生成
 	modelPlayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
 	modelEnemy_ = KamataEngine::Model::CreateFromOBJ("cube", true);
@@ -38,16 +42,22 @@ void GameScene::Initialize() {
 	camera_.Initialize();
 
 	player_->Initialize(modelPlayer_, &camera_, playerPos);
-	for (int32_t i = 0; i < 3; ++i) {
+	for (int32_t i = 0; i < 6; ++i) {
 		Enemy* newEnemy = new Enemy();
-		KamataEngine::Vector3 enemyPosition = {3.0f+i*-3, -10.0f, playerPos.z+500.0f+i*70};
+		KamataEngine::Vector3 enemyPosition = {-6.0f+i*2, -10.0f, playerPos.z+500.0f+i*70};
 		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
 
 		enemies_.push_back(newEnemy);
 	}
+	for (int32_t i = 0; i < 2; ++i) {
+		field* newField = new field();
+		KamataEngine::Vector3 fieldPosition = {0.0f, 0.0f, i*4927.0f};
+		newField->Initialize(modelField_, &camera_, fieldPosition);
+
+		fields_.push_back(newField);
+	}
 	
 	skydome_->Initialize(modelSkydome_, &camera_);
-	field_->Initialize(modelField_, &camera_,fieldPos);
 
 	debugCamera_ = new DebugCamera(1280, 720);
 
@@ -67,18 +77,24 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	player_->Update();
+	goalTimer--;
+	if (goalTimer >= 0) {
 
-	SodaGage();
+		player_->Update();
+
+		for (field* field : fields_) {
+			field->Update();
+		}
+
+		SodaGage();
 
 		// 敵の更新
-	for (Enemy* enemy : enemies_) {
-		enemy->Update();
+		for (Enemy* enemy : enemies_) {
+			enemy->Update();
+		}
+
+		CheckAllCollisions();
 	}
-
-	//CheckAllCollisions();
-
-	
 
 #ifdef _DEBUG
 
@@ -98,6 +114,9 @@ void GameScene::Update() {
 	}
 
 	debugCamera_->Update();
+	ImGui::Begin("time");
+	ImGui::SliderFloat("ClearTimer", &goalTimer, 0.0f, 720.0f);
+	ImGui::End();
 }
 
 void GameScene::Draw() {
@@ -132,7 +151,9 @@ void GameScene::Draw() {
 	
 	skydome_->Draw();
 
-	field_->Draw();
+	for (field* field : fields_) {
+		field->Draw();
+	}
 
 	/// </summary>
 
@@ -160,80 +181,43 @@ void GameScene::SodaGage() {
 	}
 }
 
-//void GameScene::CheckAllCollisions() {
-//
-//	KamataEngine::Vector3 posA[4], posB[4];
-//	float radiusA[3] = {0.8f, 2.0f, 0.8f}; // プレイヤーの半径（固定値）
-//	float radiusB[3] = {0.8f, 2.0f, 0.8f}; // 敵弾の半径（固定値）
-//
-//	// 敵弾リストの取得
-//	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullet();
-//	// 自弾
-//	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
-//
-//#pragma region 自キャラと敵弾の当たり判定
-//
-//	// 自キャラの座標
-//	posA[0] = player_->GetWorldPosition();
-//
-//	// 自キャラと敵弾全ての当たり判定
-//	for (EnemyBullet* bullet : enemyBullets) {
-//		// 敵弾の座標
-//		posB[0] = bullet->GetWorldPosition();
-//
-//		// 2つの球の中心間の距離の二乗を計算
-//		float distanceSquared = (posA[0].x - posB[0].x) * (posA[0].x - posB[0].x) + (posA[0].y - posB[0].y) * (posA[0].y - posB[0].y) + (posA[0].z - posB[0].z) * (posA[0].z - posB[0].z);
-//
-//		// 半径の合計の二乗
-//		float combinedRadiusSquared = (radiusA[0] + radiusB[0]) * (radiusA[0] + radiusB[0]);
-//
-//		// 衝突判定 (距離の二乗が半径の合計の二乗以下なら衝突)
-//		if (distanceSquared <= combinedRadiusSquared) {
-//			// 自キャラの衝突時コールバックを呼び出す
-//			player_->OnCollision();
-//			// 敵弾の衝突時コールバックを呼び出す
-//			bullet->OnCollision();
-//		}
-//	}
-//
-//#pragma endregion
-//
-//#pragma region 自弾と敵キャラの当たり判定
-//
-//	// 敵
-//	posA[1] = enemy_->GetWorldPosition();
-//
-//	for (PlayerBullet* bullet : playerBullets) {
-//
-//		posB[1] = bullet->GetWorldPosition();
-//		float distanceSquared = (posA[1].x - posB[1].x) * (posA[1].x - posB[1].x) + (posA[1].y - posB[1].y) * (posA[1].y - posB[1].y) + (posA[1].z - posB[1].z) * (posA[1].z - posB[1].z);
-//		float combinedRadiusSquared = (radiusA[2] + radiusB[2]) * (radiusA[2] + radiusB[2]);
-//
-//		if (distanceSquared <= combinedRadiusSquared) {
-//			enemy_->OnCollision();
-//			bullet->OnCollision();
-//		}
-//	}
-//
-//#pragma endregion
-//
-//#pragma region 自弾と敵弾の当たり判定
-//
-//	for (PlayerBullet* bullet : playerBullets) {
-//		for (EnemyBullet* bullet2 : enemyBullets) {
-//
-//			posA[2] = bullet->GetWorldPosition();
-//			posB[2] = bullet2->GetWorldPosition();
-//
-//			float distanceSquared = (posA[2].x - posB[2].x) * (posA[2].x - posB[2].x) + (posA[2].y - posB[2].y) * (posA[2].y - posB[2].y) + (posA[2].z - posB[2].z) * (posA[2].z - posB[2].z);
-//			float combinedRadiusSquared = (radiusA[1] + radiusB[1]) * (radiusA[1] + radiusB[1]);
-//
-//			if (distanceSquared <= combinedRadiusSquared) {
-//				bullet->OnCollision();
-//				bullet2->OnCollision();
-//			}
-//		}
-//	}
-//
-//#pragma endregion
-//}
+void GameScene::ClearTime() {
+
+}
+
+void GameScene::CheckAllCollisions() {
+
+
+
+	KamataEngine::Vector3 posA[4], posB[4];
+	float radiusA[3] = {0.8f, 2.0f, 0.8f}; // プレイヤーの半径（固定値）
+	float radiusB[3] = {0.8f, 2.0f, 0.8f}; // 敵の半径（固定値）
+#pragma region 自キャラと敵弾の当たり判定
+
+	// 自キャラの座標
+	posA[0] = player_->GetWorldPosition();
+
+	// 自キャラと敵全ての当たり判定
+	for (Enemy* enemy : enemies_) {
+		// 敵弾の座標
+		posB[0] = enemy->GetWorldPosition();
+
+		// 2つの球の中心間の距離の二乗を計算
+		//float distanceSquared = (posA[0].x - posB[0].x) * (posA[0].x - posB[0].x) + (posA[0].y - posB[0].y) * (posA[0].y - posB[0].y) + (posA[0].z - posB[0].z) * (posA[0].z - posB[0].z);
+		// 半径の合計の二乗
+		//float combinedRadiusSquared = (radiusA[0] + radiusB[0]) * (radiusA[0] + radiusB[0]);
+
+		// 衝突判定 (距離の二乗が半径の合計の二乗以下なら衝突)
+		if (abs(posA[0].z - posB[0].z) <= 1 && abs(posA[0].x - posB[0].x) <= 1  && nowSodaGage > 0) {
+			nowSodaGage -= 50;
+			player_->OnCollision();
+		}
+		ImGui::Begin("a");
+		ImGui::SliderFloat("pl y", &posA[0].y, -1.0f, 1.0f);
+		ImGui::SliderFloat("en Y", &posB[0].y, -10.0f, 1.0f);
+
+		ImGui::End();
+	}
+
+}
+

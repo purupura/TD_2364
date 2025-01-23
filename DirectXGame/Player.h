@@ -4,6 +4,10 @@
 #include <3d/Model.h>
 #include <KamataEngine.h>
 #include <list>
+#include "AABB.h"
+
+class Enemy;
+class GameScene;
 
 namespace KamataEngine {
 class Input;
@@ -17,7 +21,7 @@ public:
 	void Update();
 	void Draw();
 	~Player();
-	
+	AABB GetAABB();
 	void OnCollision();
 
 	KamataEngine::Vector3 GetWorldPosition();
@@ -27,7 +31,8 @@ public:
 
 private:
 	bool isDead_ = false;
-
+	bool isR_ = false;
+	bool isL_ = false;
 	KamataEngine::WorldTransform worldtransfrom_;
 
 	KamataEngine::Model* model_ = nullptr;
@@ -43,4 +48,6 @@ private:
 	bool onGround_ = true;
 
 	static inline const float kGravityAcceleration = 0.5f;
+
+
 };
