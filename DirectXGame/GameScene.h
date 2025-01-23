@@ -16,6 +16,8 @@ public:
 	void Update();
 	void Draw();
 
+	void SodaGage();
+
 	//void CheckAllCollisions();
 
 private:
@@ -24,12 +26,11 @@ private:
 	Audio* audio_ = nullptr;
 
 	Player* player_ = nullptr;
-	Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
 	Skydome* skydome_ = nullptr;
 	field* field_ = nullptr;
-
+	
 	Vector3 playerPos = {0,-10,0};
-	Vector3 enemyPos = {3, -10, 500};
 	Vector3 fieldPos = {0, -10, 0};
 
 	Model* modelPlayer_ = nullptr;

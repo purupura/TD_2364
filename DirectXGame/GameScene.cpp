@@ -6,15 +6,17 @@ GameScene::GameScene() {}
 
 GameScene::~GameScene() {
 	delete modelPlayer_;
-	//delete modelEnemy_;
+	delete modelEnemy_;
 	delete player_;
-	//delete enemy_;
-	//delete debugCamera_;
+	delete debugCamera_;
 	delete modelSkydome_;
 	delete field_;
 	delete hpBarSprite_;
 	delete hpBarSprite2_;
 	delete hpBarSprite3_;
+	for (Enemy* enemy : enemies_) {
+		delete enemy;
+	}
 }
 
 void GameScene::Initialize() {
@@ -24,7 +26,6 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 
 	player_ = new Player();
-	enemy_ = new Enemy();
 	skydome_ = new Skydome();
 	field_ = new field();
 	// 3Dモデルの生成
@@ -36,9 +37,15 @@ void GameScene::Initialize() {
 	// ビュープロジェクションの初期化
 	camera_.Initialize();
 
-	// playerPos.z = 0;
 	player_->Initialize(modelPlayer_, &camera_, playerPos);
-	enemy_->Initialize(modelEnemy_, &camera_, enemyPos);
+	for (int32_t i = 0; i < 3; ++i) {
+		Enemy* newEnemy = new Enemy();
+		KamataEngine::Vector3 enemyPosition = {3.0f+i*-3, -10.0f, playerPos.z+500.0f+i*70};
+		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
+
+		enemies_.push_back(newEnemy);
+	}
+	
 	skydome_->Initialize(modelSkydome_, &camera_);
 	field_->Initialize(modelField_, &camera_,fieldPos);
 
@@ -61,26 +68,17 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	player_->Update();
-	enemy_->Update();
-	debugCamera_->Update();
+
+	SodaGage();
+
+		// 敵の更新
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
+
 	//CheckAllCollisions();
 
-	KamataEngine::Vector2 size = hpBarSprite_->GetSize();
-
-	size.x = nowSodaGage / maxSodaGage * width;
-	size.y = 50.0f;
-
-	 hpBarSprite_->SetSize(size);
-
-	 if (input_->PushKey(DIK_SPACE)) {
-		 nowSodaGage -= 5;
-	 }
 	
-	nowSodaGage -= 1;
-	
-	if (nowSodaGage <= 0) {
-		nowSodaGage = 0;
-	}
 
 #ifdef _DEBUG
 
@@ -98,6 +96,8 @@ void GameScene::Update() {
 	} else {
 		camera_.UpdateMatrix();
 	}
+
+	debugCamera_->Update();
 }
 
 void GameScene::Draw() {
@@ -124,7 +124,9 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// 
 	
-	enemy_->Draw();
+	for (Enemy* enemy : enemies_) {
+	enemy->Draw();
+	}
 
 	player_->Draw();
 	
@@ -137,6 +139,25 @@ void GameScene::Draw() {
 	KamataEngine::Model::PostDraw();
 	Sprite::PreDraw(commandList);
 	Sprite::PostDraw();
+}
+
+void GameScene::SodaGage() {
+	KamataEngine::Vector2 size = hpBarSprite_->GetSize();
+
+	size.x = nowSodaGage / maxSodaGage * width;
+	size.y = 50.0f;
+
+	hpBarSprite_->SetSize(size);
+
+	if (input_->PushKey(DIK_SPACE)) {
+		nowSodaGage -= 5;
+	}
+
+	nowSodaGage -= 1;
+
+	if (nowSodaGage <= 0) {
+		nowSodaGage = 0;
+	}
 }
 
 //void GameScene::CheckAllCollisions() {

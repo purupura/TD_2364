@@ -27,11 +27,10 @@ public:
 
 
 private:
-	KamataEngine::WorldTransform worldtransfrom_;
+	KamataEngine::WorldTransform enemyWorldTransfrom_;
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::Camera* camera_ = nullptr;
 
 	Player* player_ = nullptr;
-
 
 };
