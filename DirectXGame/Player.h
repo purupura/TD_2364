@@ -18,6 +18,7 @@ public:
 	void Draw();
 	~Player();
 	
+	void OnCollision();
 
 	KamataEngine::Vector3 GetWorldPosition();
 

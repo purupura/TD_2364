@@ -1,5 +1,5 @@
 #pragma once
-//#include "Enemy.h"
+#include "Enemy.h"
 #include "KamataEngine.h"
 #include "Player.h"
 #include "Skydome.h"
@@ -24,12 +24,12 @@ private:
 	Audio* audio_ = nullptr;
 
 	Player* player_ = nullptr;
-	//Enemy* enemy_ = nullptr;
+	Enemy* enemy_ = nullptr;
 	Skydome* skydome_ = nullptr;
 	field* field_ = nullptr;
 
 	Vector3 playerPos = {0,-10,0};
-	Vector3 enemyPos = {0, 3, 100};
+	Vector3 enemyPos = {3, -10, 500};
 	Vector3 fieldPos = {0, -10, 0};
 
 	Model* modelPlayer_ = nullptr;
@@ -40,7 +40,6 @@ private:
 	uint32_t textureHandle_ = 0;
 	uint32_t enemyTextureHandle_ = 0;
 
-	// std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 	Camera camera_;
 
 	bool isDebugCameraActive_ = false;

@@ -24,12 +24,12 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 
 	player_ = new Player();
-	//enemy_ = new Enemy();
+	enemy_ = new Enemy();
 	skydome_ = new Skydome();
 	field_ = new field();
 	// 3Dモデルの生成
 	modelPlayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
-	//modelEnemy_ = KamataEngine::Model::CreateFromOBJ("cube", true);
+	modelEnemy_ = KamataEngine::Model::CreateFromOBJ("cube", true);
 	modelSkydome_ = KamataEngine::Model::CreateFromOBJ("skydome", true);
 	modelField_ = KamataEngine::Model::CreateFromOBJ("field", true);
 
@@ -38,7 +38,7 @@ void GameScene::Initialize() {
 
 	// playerPos.z = 0;
 	player_->Initialize(modelPlayer_, &camera_, playerPos);
-	//enemy_->Initialize(modelEnemy_, &camera_, enemyPos);
+	enemy_->Initialize(modelEnemy_, &camera_, enemyPos);
 	skydome_->Initialize(modelSkydome_, &camera_);
 	field_->Initialize(modelField_, &camera_,fieldPos);
 
@@ -61,7 +61,7 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	player_->Update();
-	
+	enemy_->Update();
 	debugCamera_->Update();
 	//CheckAllCollisions();
 
@@ -73,7 +73,7 @@ void GameScene::Update() {
 	 hpBarSprite_->SetSize(size);
 
 	 if (input_->PushKey(DIK_SPACE)) {
-		 nowSodaGage -= 1;
+		 nowSodaGage -= 5;
 	 }
 	
 	nowSodaGage -= 1;
@@ -122,6 +122,9 @@ void GameScene::Draw() {
 
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
+	/// 
+	
+	enemy_->Draw();
 
 	player_->Draw();
 	
