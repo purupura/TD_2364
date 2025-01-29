@@ -13,11 +13,16 @@ GameScene::~GameScene() {
 	delete hpBarSprite_;
 	delete hpBarSprite2_;
 	delete hpBarSprite3_;
+	delete soda_;
+	delete modelSoda_;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
 	for (field* field : fields_) {
 		delete field;
+	}
+	for (bill* bill : bills_) {
+		delete bill;
 	}
 }
 
@@ -32,16 +37,20 @@ void GameScene::Initialize() {
 
 	player_ = new Player();
 	skydome_ = new Skydome();
+	soda_ = new Soda();
 	// 3Dモデルの生成
 	modelPlayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
-	modelEnemy_ = KamataEngine::Model::CreateFromOBJ("cube", true);
+	modelEnemy_ = KamataEngine::Model::CreateFromOBJ("corn", true);
 	modelSkydome_ = KamataEngine::Model::CreateFromOBJ("skydome", true);
 	modelField_ = KamataEngine::Model::CreateFromOBJ("field", true);
-
+	modelSoda_ = KamataEngine::Model::CreateFromOBJ("soda", true);
+	modelBill_ = KamataEngine::Model::CreateFromOBJ("bill", true);
 	// ビュープロジェクションの初期化
 	camera_.Initialize();
 
 	player_->Initialize(modelPlayer_, &camera_, playerPos);
+
+	soda_->Initialize(modelSoda_, &camera_, playerPos);
 	for (int32_t i = 0; i < 6; ++i) {
 		Enemy* newEnemy = new Enemy();
 		KamataEngine::Vector3 enemyPosition = {-6.0f+i*2, -10.0f, playerPos.z+500.0f+i*70};
@@ -55,6 +64,13 @@ void GameScene::Initialize() {
 		newField->Initialize(modelField_, &camera_, fieldPosition);
 
 		fields_.push_back(newField);
+	}
+	for (int32_t i = 0; i < 6; ++i) {
+		bill* newBill = new bill();
+		KamataEngine::Vector3 billPosition = {0.0f, 0.0f, i * 132.5f};
+		newBill->Initialize(modelBill_, &camera_, billPosition);
+
+		bills_.push_back(newBill);
 	}
 	
 	skydome_->Initialize(modelSkydome_, &camera_);
@@ -78,12 +94,16 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	goalTimer--;
-	if (goalTimer >= 0) {
+	if (goalTimer>0) {
 
 		player_->Update();
+		soda_->Update();
 
 		for (field* field : fields_) {
 			field->Update();
+		}
+		for (bill* bill : bills_) {
+			bill->Update();
 		}
 
 		SodaGage();
@@ -148,13 +168,16 @@ void GameScene::Draw() {
 	}
 
 	player_->Draw();
-	
+	soda_->Draw();
 	skydome_->Draw();
 
 	for (field* field : fields_) {
 		field->Draw();
 	}
 
+	for (bill* bill : bills_) {
+		bill->Draw();
+	}
 	/// </summary>
 
 	KamataEngine::Model::PostDraw();
@@ -187,8 +210,6 @@ void GameScene::ClearTime() {
 
 void GameScene::CheckAllCollisions() {
 
-
-
 	KamataEngine::Vector3 posA[4], posB[4];
 	float radiusA[3] = {0.8f, 2.0f, 0.8f}; // プレイヤーの半径（固定値）
 	float radiusB[3] = {0.8f, 2.0f, 0.8f}; // 敵の半径（固定値）
@@ -208,9 +229,10 @@ void GameScene::CheckAllCollisions() {
 		//float combinedRadiusSquared = (radiusA[0] + radiusB[0]) * (radiusA[0] + radiusB[0]);
 
 		// 衝突判定 (距離の二乗が半径の合計の二乗以下なら衝突)
-		if (abs(posA[0].z - posB[0].z) <= 1 && abs(posA[0].x - posB[0].x) <= 1  && nowSodaGage > 0) {
+		if (abs(posA[0].z - posB[0].z) <= 1 && abs(posA[0].x - posB[0].x) <= 1 && abs(posA[0].y - posB[0].y) <= 1 && nowSodaGage > 0) {
 			nowSodaGage -= 50;
 			player_->OnCollision();
+			soda_->OnCollision();
 		}
 		ImGui::Begin("a");
 		ImGui::SliderFloat("pl y", &posA[0].y, -1.0f, 1.0f);

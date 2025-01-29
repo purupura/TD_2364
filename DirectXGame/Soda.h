@@ -1,10 +1,10 @@
 #pragma once
 
+#include "AABB.h"
 #include <3d/Camera.h>
 #include <3d/Model.h>
 #include <KamataEngine.h>
 #include <list>
-#include "AABB.h"
 
 class Enemy;
 class GameScene;
@@ -13,14 +13,12 @@ namespace KamataEngine {
 class Input;
 };
 
-
-
-class Player {
+class Soda {
 public:
-	void Initialize(KamataEngine::Model* model,  KamataEngine::Camera* camera, const KamataEngine::Vector3& pos);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& pos);
 	void Update();
 	void Draw();
-	~Player();
+	~Soda();
 	AABB GetAABB();
 	void OnCollision();
 
@@ -49,6 +47,4 @@ private:
 	bool onGround_ = true;
 
 	static inline const float kGravityAcceleration = 0.5f;
-
-
 };

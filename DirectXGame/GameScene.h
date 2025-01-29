@@ -4,6 +4,8 @@
 #include "Player.h"
 #include "Skydome.h"
 #include "field.h"
+#include "Soda.h"
+#include "bill.h"
 #include <random>
 
 using namespace KamataEngine;
@@ -33,8 +35,8 @@ private:
 	std::list<Enemy*> enemies_;
 	Skydome* skydome_ = nullptr;
 	std::list<field*> fields_;
-
-
+	Soda* soda_ = nullptr;
+	std::list<bill*> bills_;
 	
 	Vector3 playerPos = {0,-10.0,0};
 	Vector3 fieldPos = {0, 0, 500};
@@ -42,7 +44,8 @@ private:
 	Model* modelEnemy_ = nullptr;
 	Model* modelSkydome_ = nullptr;
 	Model* modelField_ = nullptr;
-
+	Model* modelSoda_ = nullptr;
+	Model* modelBill_ = nullptr;
 
 	uint32_t textureHandle_ = 0;
 	uint32_t enemyTextureHandle_ = 0;
