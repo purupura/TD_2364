@@ -88,4 +88,19 @@ private:
 	uint32_t soundDataHandle2_ = 0;
 	uint32_t voiceHandle_ = 0;
 
+	// シーンの状態を管理する列挙型
+	enum class SceneState { Start, Game, Clear, Over };
+
+	// 現在のシーンの状態を管理する変数
+	SceneState sceneState = SceneState::Start;
+
+	uint32_t texturtitle_ = 0;
+	KamataEngine::Sprite* title1_ = nullptr;
+
+	uint32_t texturtitle2_ = 0;
+	KamataEngine::Sprite* title2_ = nullptr;
+
+	uint32_t texturtitle3_ = 0;
+	KamataEngine::Sprite* title3_ = nullptr;
+
 };

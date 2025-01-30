@@ -111,11 +111,28 @@ void GameScene::Initialize() {
 	soundDataHandle2_ = audio_->LoadWave("Audio/Search_and_Chase_2.wav");
 	audio_->PlayWave(soundDataHandle2_,true,0.2f);
 	
+	// タイトルスプライトの初期化
+	texturtitle_ = TextureManager::Load("title.png");
+	title1_ = Sprite::Create(texturtitle_, {0, 0});
 
+	texturtitle2_ = TextureManager::Load("clear.png");
+	title2_ = Sprite::Create(texturtitle2_, {0, 0});
+
+	texturtitle3_ = TextureManager::Load("over.png");
+	title3_ = Sprite::Create(texturtitle3_, {0, 0});
 }
 
 void GameScene::Update() {
-	goalTimer--;
+	switch (sceneState)
+	{
+	case GameScene::SceneState::Start:
+		// スタートシーンの更新処理
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Game;
+		}
+		break;
+	case GameScene::SceneState::Game:
+		goalTimer--;
 	if (goalTimer>0) {
 
 		player_->Update();
@@ -167,6 +184,25 @@ void GameScene::Update() {
 	ImGui::Begin("time");
 	ImGui::SliderFloat("ClearTimer", &goalTimer, 0.0f, 720.0f);
 	ImGui::End();
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Start;
+		}
+		break;
+	case GameScene::SceneState::Clear:
+		// クリアシーンの更新処理
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Start;
+		}
+		break;
+	case GameScene::SceneState::Over:
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Start;
+		}
+	default:
+		break;
+	}
+
+	
 }
 
 void GameScene::Draw() {
@@ -174,25 +210,14 @@ void GameScene::Draw() {
 	// コマンドリストの取得
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 	dxCommon_->ClearDepthBuffer();
-#pragma region 背景スプライト描画
-	// 背景スプライト描画前処理
-
-	KamataEngine::Sprite::PreDraw(commandList);
-	
-	hpBarSprite2_->Draw();
-	hpBarSprite_->Draw();
-	hpBarSprite3_->Draw();
-	
-
-	KamataEngine::Sprite::PostDraw();
-
-	
 	KamataEngine::Model::PreDraw(commandList);
-
-	/// <summary>
-	/// ここに3Dオブジェクトの描画処理を追加できる
-	/// 
-	
+	switch (sceneState) {
+	case SceneState::Start:
+		// スタートシーンの描画処理
+		break;
+	case SceneState::Game:
+		// ゲームシーンの描画処理
+		
 		if (goalTimer >= 60 *2) {
 		for (Enemy* enemy : enemies_) {
 			enemy->Draw();
@@ -215,12 +240,58 @@ void GameScene::Draw() {
 	for (bill* bill : bills_) {
 		bill->Draw();
 	}
+
+		
+		break;
+	case SceneState::Clear:
+		// クリアシーンの描画処理
+		break;
+	case SceneState::Over:
+		// クリアシーンの描画処理
+		break;
+	}
+	/// <summary>
+	/// ここに3Dオブジェクトの描画処理を追加できる
+	/// 
+	
+		
 	/// </summary>
 
 	KamataEngine::Model::PostDraw();
+#pragma region 背景スプライト描画
+	// 背景スプライト描画前処理
+
+	KamataEngine::Sprite::PreDraw(commandList);
+	switch (sceneState) {
+	case SceneState::Start:
+		// スタートシーンの描画処理
+		title1_->Draw();
+		break;
+	case SceneState::Game:
+		hpBarSprite2_->Draw();
+	    hpBarSprite_->Draw();
+	    hpBarSprite3_->Draw();
+		goalLineSprite_->Draw();
+	    goalLineSprite2_->Draw();
+		break;
+	case SceneState::Clear:
+		// クリアシーンの描画処理
+		title2_->Draw();
+		break;
+	case SceneState::Over:
+		// クリアシーンの描画処理
+		title3_->Draw();
+		break;
+	}
+	
+	
+
+	KamataEngine::Sprite::PostDraw();
+
+	
+	
 	Sprite::PreDraw(commandList);
-	goalLineSprite_->Draw();
-	goalLineSprite2_->Draw();
+	
 	Sprite::PostDraw();
 }
 
