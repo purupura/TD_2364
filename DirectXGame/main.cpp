@@ -16,7 +16,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ゲームウィンドウの作成
 	win = WinApp::GetInstance();
-	win->CreateGameWindow(L"2364");
+	win->CreateGameWindow(L"2364_しゅわしゅわソーダ");
 
 	// DirectX初期化処理
 	dxCommon = DirectXCommon::GetInstance();
