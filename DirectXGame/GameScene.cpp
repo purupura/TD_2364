@@ -276,11 +276,6 @@ void GameScene::CheckAllCollisions() {
 		// 敵弾の座標
 		posB[0] = enemy->GetWorldPosition();
 
-		// 2つの球の中心間の距離の二乗を計算
-		//float distanceSquared = (posA[0].x - posB[0].x) * (posA[0].x - posB[0].x) + (posA[0].y - posB[0].y) * (posA[0].y - posB[0].y) + (posA[0].z - posB[0].z) * (posA[0].z - posB[0].z);
-		// 半径の合計の二乗
-		//float combinedRadiusSquared = (radiusA[0] + radiusB[0]) * (radiusA[0] + radiusB[0]);
-
 		// 衝突判定 (距離の二乗が半径の合計の二乗以下なら衝突)
 		if (abs(posA[0].z - posB[0].z) <= 1 && abs(posA[0].x - posB[0].x) <= 1 && abs(posA[0].y - posB[0].y) <= 1) {
 			nowSodaGage -= 50;
