@@ -5,6 +5,7 @@
 //#include "Skydome.h"
 using namespace KamataEngine;
 
+
 class GameScene {
 public:
 	GameScene();
@@ -40,4 +41,19 @@ private:
 	bool isDebugCameraActive_ = false;
 	// デバックカメラ
 	DebugCamera* debugCamera_ = nullptr;
+
+	// シーンの状態を管理する列挙型
+	enum class SceneState { Start, Game, Clear, Over };
+
+	// 現在のシーンの状態を管理する変数
+	SceneState sceneState = SceneState::Start;
+
+	uint32_t texturtitle_ = 0;
+	KamataEngine::Sprite* title1_ = nullptr;
+
+	uint32_t texturtitle2_ = 0;
+	KamataEngine::Sprite* title2_ = nullptr;
+
+	uint32_t texturtitle3_ = 0;
+	KamataEngine::Sprite* title3_ = nullptr;
 };

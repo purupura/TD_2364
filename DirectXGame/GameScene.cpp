@@ -45,16 +45,37 @@ void GameScene::Initialize() {
 	// 敵キャラに自キャラのアドレスを渡す
 	//enemy_->SetPlayer(player_);
 
+	// タイトルスプライトの初期化
+	texturtitle_ = TextureManager::Load("title.png");
+	title1_ = Sprite::Create(texturtitle_, {0, 0});
 
+	texturtitle2_ = TextureManager::Load("clear.png");
+	title2_ = Sprite::Create(texturtitle2_, {0, 0});
+
+	texturtitle3_ = TextureManager::Load("over.png");
+	title3_ = Sprite::Create(texturtitle3_, {0, 0});
 }
 
 void GameScene::Update() {
-	player_->Update();
+	switch (sceneState)
+	{
+	case GameScene::SceneState::Start:
+		// スタートシーンの更新処理
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Game;
+		}
+		break;
+	case GameScene::SceneState::Game:
+		player_->Update();
 	
-	debugCamera_->Update();
-	//CheckAllCollisions();
+	    debugCamera_->Update();
+	    //CheckAllCollisions();
 
 #ifdef _DEBUG
+
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Clear;
+		}
 
 	if (input_->TriggerKey(DIK_V)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
@@ -70,6 +91,22 @@ void GameScene::Update() {
 	} else {
 		camera_.UpdateMatrix();
 	}
+		break;
+	case GameScene::SceneState::Clear:
+		// クリアシーンの更新処理
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Start;
+		}
+		break;
+	case GameScene::SceneState::Over:
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Start;
+		}
+	default:
+		break;
+	}
+
+	
 }
 
 void GameScene::Draw() {
@@ -80,18 +117,44 @@ void GameScene::Draw() {
 #pragma region 背景スプライト描画
 	// 背景スプライト描画前処理
 	Sprite::PreDraw(commandList);
+	switch (sceneState) {
+	case SceneState::Start:
+		// スタートシーンの描画処理
+		title1_->Draw();
+		break;
+	case SceneState::Game:
+		break;
+	case SceneState::Clear:
+		// クリアシーンの描画処理
+		title2_->Draw();
+		break;
+	case SceneState::Over:
+		// クリアシーンの描画処理
+		title3_->Draw();
+		break;
+	}
+	
 	Sprite::PostDraw();
 	dxCommon_->ClearDepthBuffer();
 	KamataEngine::Model::PreDraw(commandList);
 
-	/// <summary>
-	/// ここに3Dオブジェクトの描画処理を追加できる
+	switch (sceneState) {
+	case SceneState::Start:
+		// スタートシーンの描画処理
+		break;
+	case SceneState::Game:
+		// ゲームシーンの描画処理
+		player_->Draw();
 
-	player_->Draw();
-	
-	//skydome_->Draw();
-
-	/// </summary>
+		
+		break;
+	case SceneState::Clear:
+		// クリアシーンの描画処理
+		break;
+	case SceneState::Over:
+		// クリアシーンの描画処理
+		break;
+	}
 
 	KamataEngine::Model::PostDraw();
 	Sprite::PreDraw(commandList);
