@@ -15,6 +15,10 @@ GameScene::~GameScene() {
 	delete hpBarSprite3_;
 	delete soda_;
 	delete modelSoda_;
+	delete goalLineSprite_;
+	delete goalLineSprite2_;
+	delete rocket_;
+	delete modelRocket;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
@@ -38,6 +42,8 @@ void GameScene::Initialize() {
 	player_ = new Player();
 	skydome_ = new Skydome();
 	soda_ = new Soda();
+	rocket_ = new Rocket();
+
 	// 3Dモデルの生成
 	modelPlayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
 	modelEnemy_ = KamataEngine::Model::CreateFromOBJ("corn", true);
@@ -45,6 +51,7 @@ void GameScene::Initialize() {
 	modelField_ = KamataEngine::Model::CreateFromOBJ("field", true);
 	modelSoda_ = KamataEngine::Model::CreateFromOBJ("soda", true);
 	modelBill_ = KamataEngine::Model::CreateFromOBJ("bill", true);
+	modelRocket = KamataEngine::Model::CreateFromOBJ("rocket", true);
 	// ビュープロジェクションの初期化
 	camera_.Initialize();
 
@@ -75,21 +82,36 @@ void GameScene::Initialize() {
 	
 	skydome_->Initialize(modelSkydome_, &camera_);
 
+	rocket_->Initialize(modelRocket, &camera_, rocketPos);
+
 	debugCamera_ = new DebugCamera(1280, 720);
 
 	// 軸方向表示の表示を有効にする
 	KamataEngine::AxisIndicator::GetInstance()->SetVisible(true);
 	// 軸方向表示が参照するビュープロジェクションを指定する（アドレス渡し）
 	KamataEngine::AxisIndicator::GetInstance()->SetTargetCamera(&camera_);
-
-	// 敵キャラに自キャラのアドレスを渡す
-	//enemy_->SetPlayer(player_);
+	
+	//スプライト系統
 	hpBarTextureHandle_ = KamataEngine::TextureManager::Load("hpBarFront.png");
 	hpBarTextureHandle2_ = KamataEngine::TextureManager::Load("hpBarBuck.png");
 	hpBarTextureHandle3_ = KamataEngine::TextureManager::Load("hpBarflame.png");
 	hpBarSprite_ = KamataEngine::Sprite::Create(hpBarTextureHandle_, {120, 10});
 	hpBarSprite2_ = KamataEngine::Sprite::Create(hpBarTextureHandle2_, {120, 10});
 	hpBarSprite3_ = KamataEngine::Sprite::Create(hpBarTextureHandle3_, {120, 10});
+
+	goalLineTextureHandle_ = KamataEngine::TextureManager::Load("goalLine.png");
+	goalLineTextureHandle2_ = KamataEngine::TextureManager::Load("bike.png");
+
+	goalLineSprite_ = KamataEngine::Sprite::Create(goalLineTextureHandle_, {0, 0});
+	goalLineSprite2_ = KamataEngine::Sprite::Create(goalLineTextureHandle2_, {0, 0});
+
+	//音楽
+	audio_ = KamataEngine::Audio::GetInstance();
+	soundDataHandle_ = audio_->LoadWave("Audio/gan.wav");
+	soundDataHandle2_ = audio_->LoadWave("Audio/Search_and_Chase_2.wav");
+	audio_->PlayWave(soundDataHandle2_,true,0.2f);
+	
+
 }
 
 void GameScene::Update() {
@@ -99,18 +121,26 @@ void GameScene::Update() {
 		player_->Update();
 		soda_->Update();
 
-		for (field* field : fields_) {
-			field->Update();
+		
+
+		if (goalTimer >= 60 * 2) {
+			// 敵の更新
+			for (Enemy* enemy : enemies_) {
+				enemy->Update();
+			}
+		
 		}
 		for (bill* bill : bills_) {
 			bill->Update();
 		}
-
+		for (field* field : fields_) {
+			field->Update();
+		}
+		BikeMove();
 		SodaGage();
 
-		// 敵の更新
-		for (Enemy* enemy : enemies_) {
-			enemy->Update();
+		if (goalTimer <= 60 * 2) {
+			rocket_->Update();
 		}
 
 		CheckAllCollisions();
@@ -148,12 +178,12 @@ void GameScene::Draw() {
 	// 背景スプライト描画前処理
 
 	KamataEngine::Sprite::PreDraw(commandList);
-
-	
 	
 	hpBarSprite2_->Draw();
 	hpBarSprite_->Draw();
 	hpBarSprite3_->Draw();
+	
+
 	KamataEngine::Sprite::PostDraw();
 
 	
@@ -163,13 +193,20 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// 
 	
-	for (Enemy* enemy : enemies_) {
-	enemy->Draw();
+		if (goalTimer >= 60 *2) {
+		for (Enemy* enemy : enemies_) {
+			enemy->Draw();
+		}
 	}
+
 
 	player_->Draw();
 	soda_->Draw();
 	skydome_->Draw();
+	if (goalTimer <= 60 * 2) {
+		rocket_->Draw();
+	}
+	
 
 	for (field* field : fields_) {
 		field->Draw();
@@ -182,11 +219,14 @@ void GameScene::Draw() {
 
 	KamataEngine::Model::PostDraw();
 	Sprite::PreDraw(commandList);
+	goalLineSprite_->Draw();
+	goalLineSprite2_->Draw();
 	Sprite::PostDraw();
 }
 
 void GameScene::SodaGage() {
 	KamataEngine::Vector2 size = hpBarSprite_->GetSize();
+	
 
 	size.x = nowSodaGage / maxSodaGage * width;
 	size.y = 50.0f;
@@ -206,6 +246,19 @@ void GameScene::SodaGage() {
 
 void GameScene::ClearTime() {
 
+}
+
+void GameScene::BikeMove() {
+	KamataEngine::Vector2 pos = goalLineSprite2_->GetPosition();
+
+	pos.x = 0;
+	pos.y -= (goalTimer/goalTimer/limitTimer)*7;
+
+	goalLineSprite2_->SetPosition(pos);
+	debugCamera_->Update();
+	ImGui::Begin("b");
+	ImGui::SliderFloat("bike", &pos.y, 0.0f, 720.0f);
+	ImGui::End();
 }
 
 void GameScene::CheckAllCollisions() {
@@ -229,10 +282,11 @@ void GameScene::CheckAllCollisions() {
 		//float combinedRadiusSquared = (radiusA[0] + radiusB[0]) * (radiusA[0] + radiusB[0]);
 
 		// 衝突判定 (距離の二乗が半径の合計の二乗以下なら衝突)
-		if (abs(posA[0].z - posB[0].z) <= 1 && abs(posA[0].x - posB[0].x) <= 1 && abs(posA[0].y - posB[0].y) <= 1 && nowSodaGage > 0) {
+		if (abs(posA[0].z - posB[0].z) <= 1 && abs(posA[0].x - posB[0].x) <= 1 && abs(posA[0].y - posB[0].y) <= 1) {
 			nowSodaGage -= 50;
 			player_->OnCollision();
 			soda_->OnCollision();
+			voiceHandle_ = audio_->PlayWave(soundDataHandle_, false);
 		}
 		ImGui::Begin("a");
 		ImGui::SliderFloat("pl y", &posA[0].y, -1.0f, 1.0f);
