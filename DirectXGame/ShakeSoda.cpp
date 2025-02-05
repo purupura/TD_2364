@@ -51,12 +51,6 @@ void ShakeSoda::Update() {
 	worldtransfrom_.translation_.x = std::clamp(worldtransfrom_.translation_.x, -kMoveLimitX, kMoveLimitX);
 	worldtransfrom_.translation_.y = std::clamp(worldtransfrom_.translation_.y, -kMoveLimitY, kMoveLimitY);
 
-	ImGui::Begin("Setmove");
-	ImGui::SliderFloat("Move X", &worldtransfrom_.translation_.x, -1.0f, 1.0f);
-	ImGui::SliderFloat("Move Y", &worldtransfrom_.translation_.y, -1.0f, 1.0f);
-	ImGui::SliderFloat("Move Z", &worldtransfrom_.translation_.z, -1.0f, 1.0f);
-	ImGui::End();
-
 	worldtransfrom_.updateMatrix();
 }
 

@@ -61,11 +61,7 @@ void Enemy::Update() {
 	}
 
 	enemyWorldTransfrom_.updateMatrix();
-	ImGui::Begin("Enemy");
-	ImGui::SliderFloat("Move X", &enemyWorldTransfrom_.translation_.x, -1.0f, 1.0f);
-	ImGui::SliderFloat("Move Y", &enemyWorldTransfrom_.translation_.y, -10.0f, 1.0f);
-	ImGui::SliderFloat("Move z", &enemyWorldTransfrom_.translation_.z, 0.0f, 3.0f);
-	ImGui::End();
+
 }
 
 void Enemy::Draw() {

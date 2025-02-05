@@ -292,10 +292,7 @@ void GameScene::Update() {
 		CheckAllCollisions();
 
 	debugCamera_->Update();
-	ImGui::Begin("time");
-	ImGui::SliderFloat("End1Timer", &goalTimer, 0.0f, 720.0f);
-	ImGui::SliderFloat("doda", &nowSodaGage, 0.0f, maxSodaGage);
-	ImGui::End();
+
 	if (goalTimer <= 0) {
 		audio_->StopWave(voiceHandle2_);
 		audio_->StopWave(voiceHandle3_);
@@ -535,9 +532,7 @@ void GameScene::BikeMove() {
 
 	goalLineSprite2_->SetPosition(pos);
 	debugCamera_->Update();
-	ImGui::Begin("b");
-	ImGui::SliderFloat("bike", &pos.y, 0.0f, 720.0f);
-	ImGui::End();
+
 }
 
 void GameScene::CheckAllCollisions() {
@@ -567,11 +562,7 @@ void GameScene::CheckAllCollisions() {
 			soda_->OnCollision();
 			voiceHandle_ = audio_->PlayWave(soundDataHandle_, false);
 		}
-		ImGui::Begin("a");
-		ImGui::SliderFloat("pl y", &posA[0].y, -1.0f, 1.0f);
-		ImGui::SliderFloat("en Y", &posB[0].y, -10.0f, 1.0f);
 
-		ImGui::End();
 	}
 
 }
@@ -596,11 +587,6 @@ void GameScene::SkyFry() {
 		audio_->StopWave(voiceHandle4_);
 	}
 
-	ImGui::Begin("rocket");
-	ImGui::SliderFloat("pl y", &pos2.y, -1.0f, 1.0f);
-	ImGui::SliderFloat("en Y", &indexSoda, -10.0f, 1.0f);
-
-	ImGui::End();
 
 	skySprite_->SetPosition(pos2);
 	// クリアシーンの更新処理
@@ -651,11 +637,6 @@ void GameScene::Shake() {
 		sceneState = SceneState::Guid3;
 
 	}
-	ImGui::Begin("rocket");
-	ImGui::SliderFloat("pl y", &shakeTimer, -1.0f, 100.0f);
-	ImGui::SliderFloat("en Y", &indexSoda, -10.0f, 1.0f);
-
-	ImGui::End();
 
 }
 
