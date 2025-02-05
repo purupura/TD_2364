@@ -184,8 +184,8 @@ void GameScene::Update() {
 	ImGui::Begin("time");
 	ImGui::SliderFloat("ClearTimer", &goalTimer, 0.0f, 720.0f);
 	ImGui::End();
-		if (input_->TriggerKey(DIK_SPACE)) {
-			sceneState = SceneState::Start;
+		if (goalTimer==1) {
+			sceneState = SceneState::Over;
 		}
 		break;
 	case GameScene::SceneState::Clear:
