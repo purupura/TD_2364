@@ -150,8 +150,6 @@ void GameScene::Update() {
 		goalLineSprite2_->SetPosition(pos);
 
 		KamataEngine::Vector2 pos2 = skySprite_->GetPosition();
-
-		
 		pos2.x = 0;
 		pos2.y = -720*4;
 
