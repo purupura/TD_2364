@@ -27,7 +27,7 @@ public:
 
 
 private:
-
+	bool EnemyIsDead_ = false;
 
 	KamataEngine::WorldTransform enemyWorldTransfrom_;
 	KamataEngine::Model* model_ = nullptr;

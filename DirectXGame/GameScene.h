@@ -39,10 +39,11 @@ private:
 	Soda* soda_ = nullptr;
 	std::list<bill*> bills_;
 	Rocket* rocket_= nullptr;
-	
+	Enemy* enemy_ = nullptr;
 	Vector3 playerPos = {0,-10.0,0};
 	Vector3 fieldPos = {0, 0, 500};
 	Vector3 rocketPos = {0, -10, playerPos.z + 500};
+	
 	Model* modelPlayer_ = nullptr;
 	Model* modelEnemy_ = nullptr;
 	Model* modelSkydome_ = nullptr;
