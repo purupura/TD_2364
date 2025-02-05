@@ -179,7 +179,7 @@ void GameScene::Update() {
 	case GameScene::SceneState::Start:
 		// スタートシーンの更新処理
 		KamataEngine::Vector2 pos = goalLineSprite2_->GetPosition();
-
+		nowSodaGage = 0;
 		enemies_.remove_if([](Enemy* enemy) {
 			delete enemy;
 			return true;
@@ -349,7 +349,7 @@ void GameScene::Update() {
 			sceneState = SceneState::Start;
 			player_->Initialize(modelPlayer_, &camera_, playerPos);
 			rocket_->Initialize(modelRocket, &camera_, rocketPos);
-			soda_->Initialize(modelSoda_, &camera_, playerPos);　　　　　　　　　　　　　　
+			soda_->Initialize(modelSoda_, &camera_, playerPos);
 		}
 		break;
 	case GameScene::SceneState::Over:
@@ -631,7 +631,9 @@ void GameScene::Shake() {
 
 	hpBarSprite_->SetSize(size);
 
-	
+	if(nowSodaGage >= maxSodaGage) {
+		nowSodaGage = maxSodaGage;
+	}
 
 	// タイマーが0になるまでSPACEで振れる
 	if (shakeTimer > 0) {
