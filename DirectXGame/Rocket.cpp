@@ -4,6 +4,8 @@
 
 Rocket::~Rocket() {}
 
+
+
 void Rocket::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& pos) {
 	assert(model);
 	model_ = model;
@@ -35,3 +37,4 @@ void Rocket::Update() {
 }
 
 void Rocket::Draw() { model_->Draw(WorldTransfrom_, *camera_); }
+

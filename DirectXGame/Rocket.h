@@ -15,6 +15,7 @@ public:
 	void Draw();
 	~Rocket();
 
+
 	KamataEngine::Vector3 GetWorldPosition();
 
 private:
@@ -22,8 +23,5 @@ private:
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::Camera* camera_ = nullptr;
 
-	Player* player_ = nullptr;
 
-	int iMin = -3;
-	int iMax = 3;
 };

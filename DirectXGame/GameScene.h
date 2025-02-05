@@ -25,7 +25,7 @@ public:
 	void BikeMove();
 
 	void CheckAllCollisions();
-
+	void SkyFry();
 
 
 private:
@@ -43,7 +43,7 @@ private:
 	
 	Vector3 playerPos = {0,-10.0,0};
 	Vector3 fieldPos = {0, 0, 500};
-	Vector3 rocketPos = {0, -10, 500};
+	Vector3 rocketPos = {0, -10, playerPos.z + 500};
 	Model* modelPlayer_ = nullptr;
 	Model* modelEnemy_ = nullptr;
 	Model* modelSkydome_ = nullptr;
@@ -61,9 +61,11 @@ private:
 	// デバックカメラ
 	DebugCamera* debugCamera_ = nullptr;
 
-	float maxSodaGage = 60*120;
-	float nowSodaGage = maxSodaGage;
+	float maxSodaGage = 2880 + 60 * 67;//(6900)
+	float nowSodaGage = 0;
 	float width = 1000;
+	float indexSoda = 0;
+
 
 	uint32_t hpBarTextureHandle_ = 0;
 	uint32_t hpBarTextureHandle2_ = 0;
@@ -75,6 +77,8 @@ private:
 	uint32_t goalLineTextureHandle2_ = 0;
 	Sprite* goalLineSprite_ = nullptr;
 	Sprite* goalLineSprite2_ = nullptr;
+	uint32_t skyTextureHandle_ = 0;
+	Sprite* skySprite_ = nullptr;
 
 
 	float limitTimer = 60;
@@ -86,10 +90,18 @@ private:
 	//音楽
 	uint32_t soundDataHandle_ = 0;
 	uint32_t soundDataHandle2_ = 0;
+	uint32_t soundDataHandle3_ = 0;
+	uint32_t soundDataHandle4_ = 0;
 	uint32_t voiceHandle_ = 0;
+	uint32_t voiceHandle2_ = 0;
+	uint32_t voiceHandle3_ = 0;
+	uint32_t voiceHandle4_ = 0;
+	bool isBGMPlaying_ = false;
+	bool isBGMPlaying2_ = false;
+	bool isBGMPlaying3_ = false;
 
 	// シーンの状態を管理する列挙型
-	enum class SceneState { Start, Game, Clear, Over };
+	enum class SceneState { Start, Game1,Game2, Game3,Clear, Over };
 
 	// 現在のシーンの状態を管理する変数
 	SceneState sceneState = SceneState::Start;
@@ -102,5 +114,7 @@ private:
 
 	uint32_t texturtitle3_ = 0;
 	KamataEngine::Sprite* title3_ = nullptr;
+
+
 
 };

@@ -32,11 +32,6 @@ void field::Update() {
 
 	worldtransfrom_.updateMatrix();
 
-	ImGui::Begin("field");
-	ImGui::SliderFloat("Move X", &worldtransfrom_.translation_.x, -1.0f, 1.0f);
-	ImGui::SliderFloat("Move Y", &worldtransfrom_.translation_.y, -1.0f, 1.0f);
-	ImGui::SliderFloat("Move Z", &worldtransfrom_.translation_.z, -1.0f, 1.0f);
-	ImGui::End();
 }
 
 void field::Draw() { model_->Draw(worldtransfrom_, *camera_); }

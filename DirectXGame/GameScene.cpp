@@ -105,11 +105,26 @@ void GameScene::Initialize() {
 	goalLineSprite_ = KamataEngine::Sprite::Create(goalLineTextureHandle_, {0, 0});
 	goalLineSprite2_ = KamataEngine::Sprite::Create(goalLineTextureHandle2_, {0, 0});
 
+	skyTextureHandle_ = KamataEngine::TextureManager::Load("sky.png");
+	skySprite_ = KamataEngine::Sprite::Create(skyTextureHandle_, {0, -720*4});
+
 	//音楽
 	audio_ = KamataEngine::Audio::GetInstance();
 	soundDataHandle_ = audio_->LoadWave("Audio/gan.wav");
 	soundDataHandle2_ = audio_->LoadWave("Audio/Search_and_Chase_2.wav");
-	audio_->PlayWave(soundDataHandle2_,true,0.2f);
+	soundDataHandle3_ = audio_->LoadWave("Audio/Engine.wav");
+	soundDataHandle4_ = audio_->LoadWave("Audio/Rocket.wav");
+	switch (sceneState) {
+	
+		case GameScene::SceneState::Game2:
+		voiceHandle2_ = audio_->PlayWave(soundDataHandle2_, true);
+		voiceHandle3_ = audio_->PlayWave(soundDataHandle3_, true);
+		    break;
+	    case GameScene::SceneState::Game3:
+		    voiceHandle4_ = audio_->PlayWave(soundDataHandle4_, true);
+		    break;
+	}
+	
 	
 	// タイトルスプライトの初期化
 	texturtitle_ = TextureManager::Load("title.png");
@@ -127,13 +142,53 @@ void GameScene::Update() {
 	{
 	case GameScene::SceneState::Start:
 		// スタートシーンの更新処理
+		KamataEngine::Vector2 pos = goalLineSprite2_->GetPosition();
+
+		pos.x = 0;
+		pos.y =0;
+
+		goalLineSprite2_->SetPosition(pos);
+
+		KamataEngine::Vector2 pos2 = skySprite_->GetPosition();
+
+		
+		pos2.x = 0;
+		pos2.y = -720*4;
+
+		skySprite_->SetPosition(pos2);
+
 		if (input_->TriggerKey(DIK_SPACE)) {
-			sceneState = SceneState::Game;
+			sceneState = SceneState::Game1;
 		}
 		break;
-	case GameScene::SceneState::Game:
+	case GameScene::SceneState::Game1:
+
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Game2;
+		}
+		break;
+
+	case GameScene::SceneState::Game2:
+
+			if (!isBGMPlaying_) {
+			// BGMを再生し、再生中フラグをtrueに設定
+			voiceHandle2_ = audio_->PlayWave(soundDataHandle2_, false, 0.3f);
+			isBGMPlaying_ = true;
+		    } else if (!audio_->IsPlaying(voiceHandle2_)) {
+			// BGMが止まったらフラグをリセット
+			isBGMPlaying_ = false;
+		}
+		    if (!isBGMPlaying2_) {
+			    // BGMを再生し、再生中フラグをtrueに設定
+			    voiceHandle3_ = audio_->PlayWave(soundDataHandle3_, false, 1.0f);
+			    isBGMPlaying2_ = true;
+		    } else if (!audio_->IsPlaying(voiceHandle3_)) {
+			    // BGMが止まったらフラグをリセット
+			    isBGMPlaying2_ = false;
+		    }
+
 		goalTimer--;
-	if (goalTimer>0) {
+
 
 		player_->Update();
 		soda_->Update();
@@ -161,33 +216,37 @@ void GameScene::Update() {
 		}
 
 		CheckAllCollisions();
-	}
-
-#ifdef _DEBUG
-
-	if (input_->TriggerKey(DIK_V)) {
-		isDebugCameraActive_ = !isDebugCameraActive_;
-	}
-#endif
-
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		camera_.matView = debugCamera_->GetCamera().matView;
-		camera_.matProjection = debugCamera_->GetCamera().matProjection;
-		camera_.TransferMatrix();
-
-	} else {
-		camera_.UpdateMatrix();
-	}
 
 	debugCamera_->Update();
 	ImGui::Begin("time");
 	ImGui::SliderFloat("ClearTimer", &goalTimer, 0.0f, 720.0f);
+	ImGui::SliderFloat("doda", &nowSodaGage, 0.0f, maxSodaGage);
 	ImGui::End();
-		if (input_->TriggerKey(DIK_SPACE)) {
-			sceneState = SceneState::Start;
+	if (goalTimer <= 0) {
+		audio_->StopWave(voiceHandle2_);
+		audio_->StopWave(voiceHandle3_);
+		goalTimer = 60 * limitTimer;
+		indexSoda =nowSodaGage;
+		if (nowSodaGage>=2880) {
+			indexSoda = 2880;
 		}
+		sceneState = SceneState::Game3;
+	
+		}
+
 		break;
+	case GameScene::SceneState::Game3:
+
+		SkyFry();
+
+		// クリアシーンの更新処理
+		if (indexSoda<=-600) {
+			
+			sceneState = SceneState::Clear;
+		}
+
+		break;
+
 	case GameScene::SceneState::Clear:
 		// クリアシーンの更新処理
 		if (input_->TriggerKey(DIK_SPACE)) {
@@ -198,8 +257,7 @@ void GameScene::Update() {
 		if (input_->TriggerKey(DIK_SPACE)) {
 			sceneState = SceneState::Start;
 		}
-	default:
-		break;
+
 	}
 
 	
@@ -207,15 +265,27 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
+
+
 	// コマンドリストの取得
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
+
+	switch (sceneState) {
+	case SceneState::Game3:
+		Sprite::PreDraw(commandList);
+		skySprite_->Draw();
+		Sprite::PostDraw();
+
+		break;
+	}
 	dxCommon_->ClearDepthBuffer();
+
 	KamataEngine::Model::PreDraw(commandList);
 	switch (sceneState) {
 	case SceneState::Start:
 		// スタートシーンの描画処理
 		break;
-	case SceneState::Game:
+	case SceneState::Game2:
 		// ゲームシーンの描画処理
 		
 		if (goalTimer >= 60 *2) {
@@ -243,6 +313,10 @@ void GameScene::Draw() {
 
 		
 		break;
+	case SceneState::Game3:
+		rocket_->Draw();
+
+		break;
 	case SceneState::Clear:
 		// クリアシーンの描画処理
 		break;
@@ -267,12 +341,17 @@ void GameScene::Draw() {
 		// スタートシーンの描画処理
 		title1_->Draw();
 		break;
-	case SceneState::Game:
+	case SceneState::Game2:
 		hpBarSprite2_->Draw();
 	    hpBarSprite_->Draw();
 	    hpBarSprite3_->Draw();
 		goalLineSprite_->Draw();
 	    goalLineSprite2_->Draw();
+		break;
+
+	case GameScene::SceneState::Game3:
+		
+
 		break;
 	case SceneState::Clear:
 		// クリアシーンの描画処理
@@ -290,9 +369,7 @@ void GameScene::Draw() {
 
 	
 	
-	Sprite::PreDraw(commandList);
-	
-	Sprite::PostDraw();
+
 }
 
 void GameScene::SodaGage() {
@@ -365,6 +442,38 @@ void GameScene::CheckAllCollisions() {
 
 		ImGui::End();
 	}
+
+}
+
+void GameScene::SkyFry() {
+	indexSoda-=5;
+	KamataEngine::Vector2 pos2 = skySprite_->GetPosition();
+
+	if (pos2.y < 0 && indexSoda > 0) {
+		pos2.y += 5;
+		if (!isBGMPlaying3_) {
+			// BGMを再生し、再生中フラグをtrueに設定
+			voiceHandle4_ = audio_->PlayWave(soundDataHandle4_, false, 0.3f);
+			isBGMPlaying3_ = true;
+		} else if (!audio_->IsPlaying(voiceHandle4_)) {
+			// BGMが止まったらフラグをリセット
+			isBGMPlaying3_ = false;
+		}
+	}
+
+	if (indexSoda <= 0) {
+		audio_->StopWave(voiceHandle4_);
+	}
+
+	ImGui::Begin("rocket");
+	ImGui::SliderFloat("pl y", &pos2.y, -1.0f, 1.0f);
+	ImGui::SliderFloat("en Y", &indexSoda, -10.0f, 1.0f);
+
+	ImGui::End();
+
+	skySprite_->SetPosition(pos2);
+
+
 
 }
 
