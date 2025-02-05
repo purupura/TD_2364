@@ -21,7 +21,6 @@ public:
 	void Draw();
 
 	void SodaGage();
-	void ClearTime();
 	void BikeMove();
 
 	void CheckAllCollisions();
@@ -101,7 +100,7 @@ private:
 	bool isBGMPlaying3_ = false;
 
 	// シーンの状態を管理する列挙型
-	enum class SceneState { Start, Game1,Game2, Game3,Clear, Over };
+	enum class SceneState { Start, Game1, Game2, Game3, End1, End2, End3, End4, Over };
 
 	// 現在のシーンの状態を管理する変数
 	SceneState sceneState = SceneState::Start;
@@ -117,4 +116,13 @@ private:
 
 
 
+
+	uint32_t resultTextureHandle_ = 0;
+	KamataEngine::Sprite* resultSprite_ = nullptr;
+	uint32_t resultTextureHandle2_ = 0;
+	KamataEngine::Sprite* resultSprite2_ = nullptr;
+	uint32_t resultTextureHandle3_ = 0;
+	KamataEngine::Sprite* resultSprite3_ = nullptr;
+	uint32_t resultTextureHandle4_ = 0;
+	KamataEngine::Sprite* resultSprite4_ = nullptr;
 };

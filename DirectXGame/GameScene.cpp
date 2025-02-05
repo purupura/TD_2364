@@ -135,6 +135,20 @@ void GameScene::Initialize() {
 
 	texturtitle3_ = TextureManager::Load("over.png");
 	title3_ = Sprite::Create(texturtitle3_, {0, 0});
+
+	// 結果のスプライト
+
+	resultTextureHandle_ = TextureManager::Load("Result1.png");
+	resultSprite_ = Sprite::Create(resultTextureHandle_, {0, 0});
+
+	resultTextureHandle2_ = TextureManager::Load("Result2.png");
+	resultSprite2_ = Sprite::Create(resultTextureHandle2_, {0, 0});
+
+	resultTextureHandle3_ = TextureManager::Load("Result3.png");
+	resultSprite3_ = Sprite::Create(resultTextureHandle3_, {0, 0});
+
+	resultTextureHandle4_ = TextureManager::Load("Result4.png");
+	resultSprite4_ = Sprite::Create(resultTextureHandle4_, {0, 0});
 }
 
 void GameScene::Update() {
@@ -150,6 +164,8 @@ void GameScene::Update() {
 		goalLineSprite2_->SetPosition(pos);
 
 		KamataEngine::Vector2 pos2 = skySprite_->GetPosition();
+
+		
 		pos2.x = 0;
 		pos2.y = -720*4;
 
@@ -217,7 +233,7 @@ void GameScene::Update() {
 
 	debugCamera_->Update();
 	ImGui::Begin("time");
-	ImGui::SliderFloat("ClearTimer", &goalTimer, 0.0f, 720.0f);
+	ImGui::SliderFloat("End1Timer", &goalTimer, 0.0f, 720.0f);
 	ImGui::SliderFloat("doda", &nowSodaGage, 0.0f, maxSodaGage);
 	ImGui::End();
 	if (goalTimer <= 0) {
@@ -237,15 +253,27 @@ void GameScene::Update() {
 
 		SkyFry();
 
-		// クリアシーンの更新処理
-		if (indexSoda<=-600) {
-			
-			sceneState = SceneState::Clear;
-		}
-
 		break;
 
-	case GameScene::SceneState::Clear:
+	case GameScene::SceneState::End1:
+		// クリアシーンの更新処理
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Start;
+		}
+		break;
+	case GameScene::SceneState::End2:
+		// クリアシーンの更新処理
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Start;
+		}
+		break;
+	case GameScene::SceneState::End3:
+		// クリアシーンの更新処理
+		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Start;
+		}
+		break;
+	case GameScene::SceneState::End4:
 		// クリアシーンの更新処理
 		if (input_->TriggerKey(DIK_SPACE)) {
 			sceneState = SceneState::Start;
@@ -315,7 +343,7 @@ void GameScene::Draw() {
 		rocket_->Draw();
 
 		break;
-	case SceneState::Clear:
+	case SceneState::End1:
 		// クリアシーンの描画処理
 		break;
 	case SceneState::Over:
@@ -351,10 +379,15 @@ void GameScene::Draw() {
 		
 
 		break;
-	case SceneState::Clear:
+	case SceneState::End1:
 		// クリアシーンの描画処理
-		title2_->Draw();
+		resultSprite_->Draw();
 		break;
+	case SceneState::End4:
+		// クリアシーンの描画処理
+		resultSprite4_->Draw();
+		break;
+
 	case SceneState::Over:
 		// クリアシーンの描画処理
 		title3_->Draw();
@@ -390,9 +423,6 @@ void GameScene::SodaGage() {
 	}
 }
 
-void GameScene::ClearTime() {
-
-}
 
 void GameScene::BikeMove() {
 	KamataEngine::Vector2 pos = goalLineSprite2_->GetPosition();
@@ -470,7 +500,21 @@ void GameScene::SkyFry() {
 	ImGui::End();
 
 	skySprite_->SetPosition(pos2);
+	// クリアシーンの更新処理
+	if (pos2.y == -2880) {
 
+		sceneState = SceneState::End1;
+	}
+	//if (pos2.y <= 1440 && pos2.y != -2880) {
+	//	sceneState = SceneState::End2;
+	//}
+	//if (pos2.y != 0 && pos2.y == 0) {
+	//	sceneState = SceneState::End3;
+	//}
+
+	if (pos2.y == 0) {
+		sceneState = SceneState::End4;
+	}
 
 
 }
