@@ -115,6 +115,7 @@
     <ClCompile Include="MathUtility.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Rocket.cpp" />
+    <ClCompile Include="ShakeSoda.cpp" />
     <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="Soda.cpp" />
     <ClCompile Include="worldTransformEx.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="MathUtility.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Rocket.h" />
+    <ClInclude Include="ShakeSoda.h" />
     <ClInclude Include="Skydome.h" />
     <ClInclude Include="Soda.h" />
     <ClInclude Include="worldTransformEx.h" />

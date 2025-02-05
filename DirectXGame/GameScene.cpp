@@ -19,6 +19,8 @@ GameScene::~GameScene() {
 	delete goalLineSprite2_;
 	delete rocket_;
 	delete modelRocket;
+	delete shakeSoda_;
+	delete modelShake;
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
@@ -43,6 +45,7 @@ void GameScene::Initialize() {
 	skydome_ = new Skydome();
 	soda_ = new Soda();
 	rocket_ = new Rocket();
+	shakeSoda_ = new ShakeSoda();
 
 	// 3Dモデルの生成
 	modelPlayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
@@ -52,12 +55,14 @@ void GameScene::Initialize() {
 	modelSoda_ = KamataEngine::Model::CreateFromOBJ("soda", true);
 	modelBill_ = KamataEngine::Model::CreateFromOBJ("bill", true);
 	modelRocket = KamataEngine::Model::CreateFromOBJ("rocket", true);
+	modelShake = KamataEngine::Model::CreateFromOBJ("can", true);
 	// ビュープロジェクションの初期化
 	camera_.Initialize();
 
 	player_->Initialize(modelPlayer_, &camera_, playerPos);
 
 	soda_->Initialize(modelSoda_, &camera_, playerPos);
+	shakeSoda_->Initialize(modelShake, &camera_, shakePos);
 	for (int32_t i = 0; i < 6; ++i) {
 		Enemy* newEnemy = new Enemy();
 		KamataEngine::Vector3 enemyPosition = {-6.0f+i*2, -10.0f, playerPos.z+500.0f+i*70};
@@ -114,8 +119,13 @@ void GameScene::Initialize() {
 	soundDataHandle2_ = audio_->LoadWave("Audio/Search_and_Chase_2.wav");
 	soundDataHandle3_ = audio_->LoadWave("Audio/Engine.wav");
 	soundDataHandle4_ = audio_->LoadWave("Audio/Rocket.wav");
+	soundDataHandle5_ = audio_->LoadWave("Audio/potya.wav");
+	soundDataHandle6_ = audio_->LoadWave("Audio/BGM2.wav");
+	soundDataHandle7_ = audio_->LoadWave("Audio/good.wav");
+	soundDataHandle8_ = audio_->LoadWave("Audio/bad.wav");
 	switch (sceneState) {
-	
+	case GameScene::SceneState::Game1:
+		voiceHandle5_ = audio_->PlayWave(soundDataHandle5_, true);
 		case GameScene::SceneState::Game2:
 		voiceHandle2_ = audio_->PlayWave(soundDataHandle2_, true);
 		voiceHandle3_ = audio_->PlayWave(soundDataHandle3_, true);
@@ -149,6 +159,18 @@ void GameScene::Initialize() {
 
 	resultTextureHandle4_ = TextureManager::Load("Result4.png");
 	resultSprite4_ = Sprite::Create(resultTextureHandle4_, {0, 0});
+
+	guidTextureHandle_ = TextureManager::Load("Guid1.png");
+	guidSprite_ = Sprite::Create(guidTextureHandle_, {0, 0});
+
+	guidTextureHandle2_ = TextureManager::Load("Guid2.png");
+	guidSprite2_ = Sprite::Create(guidTextureHandle2_, {0, 0});
+
+	guidTextureHandle3_ = TextureManager::Load("Guid3.png");
+	guidSprite3_ = Sprite::Create(guidTextureHandle3_, {0, 0});
+
+	guidTextureHandle4_ = TextureManager::Load("Guid4.png");
+	guidSprite4_ = Sprite::Create(guidTextureHandle4_, {0, 0});
 }
 
 void GameScene::Update() {
@@ -172,16 +194,41 @@ void GameScene::Update() {
 		skySprite_->SetPosition(pos2);
 
 		if (input_->TriggerKey(DIK_SPACE)) {
+			sceneState = SceneState::Guid1;
+		}
+		break;
+	case GameScene::SceneState::Guid1:
+		if (input_->TriggerKey(DIK_RETURN)) {
+			sceneState = SceneState::Guid2;
+		}
+		break;
+	case GameScene::SceneState::Guid2:
+		if (input_->TriggerKey(DIK_RETURN)) {
 			sceneState = SceneState::Game1;
 		}
 		break;
 	case GameScene::SceneState::Game1:
-
-		if (input_->TriggerKey(DIK_SPACE)) {
+		if (!isBGMPlaying4_) {
+			// BGMを再生し、再生中フラグをtrueに設定
+			voiceHandle5_ = audio_->PlayWave(soundDataHandle6_, false, 0.3f);
+			isBGMPlaying4_ = true;
+		} else if (!audio_->IsPlaying(voiceHandle5_)) {
+			// BGMが止まったらフラグをリセット
+			isBGMPlaying4_ = false;
+		}
+		Shake();
+		shakeSoda_->Update();
+		break;
+	case GameScene::SceneState::Guid3:
+		if (input_->TriggerKey(DIK_RETURN)) {
+			sceneState = SceneState::Guid4;
+		}
+		break;
+	case GameScene::SceneState::Guid4:
+		if (input_->TriggerKey(DIK_RETURN)) {
 			sceneState = SceneState::Game2;
 		}
 		break;
-
 	case GameScene::SceneState::Game2:
 
 			if (!isBGMPlaying_) {
@@ -273,6 +320,7 @@ void GameScene::Update() {
 			sceneState = SceneState::Start;
 		}
 		break;
+
 	case GameScene::SceneState::End4:
 		// クリアシーンの更新処理
 		if (input_->TriggerKey(DIK_SPACE)) {
@@ -310,6 +358,11 @@ void GameScene::Draw() {
 	switch (sceneState) {
 	case SceneState::Start:
 		// スタートシーンの描画処理
+		break;
+	case SceneState::Game1:
+		// スタートシーンの描画処理
+		skydome_->Draw();
+		shakeSoda_->Draw();
 		break;
 	case SceneState::Game2:
 		// ゲームシーンの描画処理
@@ -367,6 +420,23 @@ void GameScene::Draw() {
 		// スタートシーンの描画処理
 		title1_->Draw();
 		break;
+	case SceneState::Guid1:
+		guidSprite_->Draw();
+		break;
+	case SceneState::Guid2:
+		guidSprite2_->Draw();
+		break;
+	case SceneState::Game1:
+		hpBarSprite2_->Draw();
+		hpBarSprite_->Draw();
+		hpBarSprite3_->Draw();
+		break;
+	case SceneState::Guid3:
+		guidSprite3_->Draw();
+		break;
+	case SceneState::Guid4:
+		guidSprite4_->Draw();
+		break;
 	case SceneState::Game2:
 		hpBarSprite2_->Draw();
 	    hpBarSprite_->Draw();
@@ -382,6 +452,14 @@ void GameScene::Draw() {
 	case SceneState::End1:
 		// クリアシーンの描画処理
 		resultSprite_->Draw();
+		break;
+	case SceneState::End2:
+		// クリアシーンの描画処理
+		resultSprite2_->Draw();
+		break;
+	case SceneState::End3:
+		// クリアシーンの描画処理
+		resultSprite3_->Draw();
 		break;
 	case SceneState::End4:
 		// クリアシーンの描画処理
@@ -501,21 +579,56 @@ void GameScene::SkyFry() {
 
 	skySprite_->SetPosition(pos2);
 	// クリアシーンの更新処理
-	if (pos2.y == -2880) {
+	if (indexSoda <= -600&&pos2.y==-2880) {
 
 		sceneState = SceneState::End1;
 	}
-	//if (pos2.y <= 1440 && pos2.y != -2880) {
-	//	sceneState = SceneState::End2;
-	//}
-	//if (pos2.y != 0 && pos2.y == 0) {
-	//	sceneState = SceneState::End3;
-	//}
+	if (indexSoda <= -600&&pos2.y<=-700) {//-1960
 
-	if (pos2.y == 0) {
+		sceneState = SceneState::End2;
+	}
+	if (indexSoda <= -600 && pos2.y > -700) {
+
+		sceneState = SceneState::End3;
+	}
+	if (indexSoda <= -600 && pos2.y == -5) {
+
 		sceneState = SceneState::End4;
 	}
 
+}
+
+void GameScene::Shake() {
+	KamataEngine::Vector2 size = hpBarSprite_->GetSize();
+
+	size.x = nowSodaGage / maxSodaGage * width;
+	size.y = 50.0f;
+
+	hpBarSprite_->SetSize(size);
+
+	
+
+	// タイマーが0になるまでSPACEで振れる
+	if (shakeTimer > 0) {
+		shakeTimer -= 1;
+		if (input_->TriggerKey(DIK_SPACE) && nowSodaGage < maxSodaGage) {
+			nowSodaGage += 50;
+			voiceHandle6_ = audio_->PlayWave(soundDataHandle5_, false,0.3f);
+		}
+	
+	}
+	// タイマーが0になると連打した分稼いだカウントが減っていく
+	if (shakeTimer <= 0) {
+		shakeTimer = 60*15;
+		audio_->StopWave(voiceHandle5_);
+		sceneState = SceneState::Guid3;
+
+	}
+	ImGui::Begin("rocket");
+	ImGui::SliderFloat("pl y", &shakeTimer, -1.0f, 100.0f);
+	ImGui::SliderFloat("en Y", &indexSoda, -10.0f, 1.0f);
+
+	ImGui::End();
 
 }
 

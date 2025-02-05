@@ -7,6 +7,7 @@
 #include "Soda.h"
 #include "bill.h"
 #include "Rocket.h"
+#include "ShakeSoda.h"
 #include <random>
 
 using namespace KamataEngine;
@@ -25,6 +26,7 @@ public:
 
 	void CheckAllCollisions();
 	void SkyFry();
+	void Shake();
 
 
 private:
@@ -39,10 +41,12 @@ private:
 	Soda* soda_ = nullptr;
 	std::list<bill*> bills_;
 	Rocket* rocket_= nullptr;
+	ShakeSoda* shakeSoda_ = nullptr;
 	
 	Vector3 playerPos = {0,-10.0,0};
 	Vector3 fieldPos = {0, 0, 500};
 	Vector3 rocketPos = {0, -10, playerPos.z + 500};
+	Vector3 shakePos = {0, 0, -40};
 	Model* modelPlayer_ = nullptr;
 	Model* modelEnemy_ = nullptr;
 	Model* modelSkydome_ = nullptr;
@@ -50,6 +54,7 @@ private:
 	Model* modelSoda_ = nullptr;
 	Model* modelBill_ = nullptr;
 	Model* modelRocket = nullptr;
+	Model* modelShake = nullptr;
 
 	uint32_t textureHandle_ = 0;
 	uint32_t enemyTextureHandle_ = 0;
@@ -91,16 +96,26 @@ private:
 	uint32_t soundDataHandle2_ = 0;
 	uint32_t soundDataHandle3_ = 0;
 	uint32_t soundDataHandle4_ = 0;
+	uint32_t soundDataHandle5_ = 0;
+	uint32_t soundDataHandle6_ = 0;
+	uint32_t soundDataHandle7_ = 0;
+	uint32_t soundDataHandle8_ = 0;
 	uint32_t voiceHandle_ = 0;
 	uint32_t voiceHandle2_ = 0;
 	uint32_t voiceHandle3_ = 0;
 	uint32_t voiceHandle4_ = 0;
+	uint32_t voiceHandle5_ = 0;
+	uint32_t voiceHandle6_ = 0;
+	uint32_t voiceHandle7_ = 0;
+	uint32_t voiceHandle8_ = 0;
 	bool isBGMPlaying_ = false;
 	bool isBGMPlaying2_ = false;
 	bool isBGMPlaying3_ = false;
+	bool isBGMPlaying4_ = false;
+	bool isBGMPlaying5_ = false;
 
 	// シーンの状態を管理する列挙型
-	enum class SceneState { Start, Game1, Game2, Game3, End1, End2, End3, End4, Over };
+	enum class SceneState { Start, Game1, Game2, Game3,Guid1,Guid2,Guid3,Guid4, End1, End2, End3, End4, Over };
 
 	// 現在のシーンの状態を管理する変数
 	SceneState sceneState = SceneState::Start;
@@ -114,7 +129,11 @@ private:
 	uint32_t texturtitle3_ = 0;
 	KamataEngine::Sprite* title3_ = nullptr;
 
+	// 振れる時間
+	float shakeTimer = 60*15;
 
+	// 振った回数
+	float shakeCount = 0;
 
 
 	uint32_t resultTextureHandle_ = 0;
@@ -125,4 +144,13 @@ private:
 	KamataEngine::Sprite* resultSprite3_ = nullptr;
 	uint32_t resultTextureHandle4_ = 0;
 	KamataEngine::Sprite* resultSprite4_ = nullptr;
+
+	uint32_t guidTextureHandle_ = 0;
+	KamataEngine::Sprite* guidSprite_ = nullptr;
+	uint32_t guidTextureHandle2_ = 0;
+	KamataEngine::Sprite* guidSprite2_ = nullptr;
+	uint32_t guidTextureHandle3_ = 0;
+	KamataEngine::Sprite* guidSprite3_ = nullptr;
+	uint32_t guidTextureHandle4_ = 0;
+	KamataEngine::Sprite* guidSprite4_ = nullptr;
 };
