@@ -91,10 +91,7 @@ void GameScene::Initialize() {
 
 	debugCamera_ = new DebugCamera(1280, 720);
 
-	// 軸方向表示の表示を有効にする
-	KamataEngine::AxisIndicator::GetInstance()->SetVisible(true);
-	// 軸方向表示が参照するビュープロジェクションを指定する（アドレス渡し）
-	KamataEngine::AxisIndicator::GetInstance()->SetTargetCamera(&camera_);
+
 	
 	//スプライト系統
 	hpBarTextureHandle_ = KamataEngine::TextureManager::Load("hpBarFront.png");
