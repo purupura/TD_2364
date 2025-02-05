@@ -180,6 +180,19 @@ void GameScene::Update() {
 		// スタートシーンの更新処理
 		KamataEngine::Vector2 pos = goalLineSprite2_->GetPosition();
 
+		enemies_.remove_if([](Enemy* enemy) {
+			delete enemy;
+			return true;
+		});
+
+		for (int32_t i = 0; i < 6; ++i) {
+			Enemy* newEnemy = new Enemy();
+			Vector3 enemyPosition = {-6.0f + i * 2, -10.0f, playerPos.z + 500.0f + i * 70};
+			newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
+
+			enemies_.push_back(newEnemy);
+		}
+
 		pos.x = 0;
 		pos.y =0;
 
@@ -306,18 +319,27 @@ void GameScene::Update() {
 		// クリアシーンの更新処理
 		if (input_->TriggerKey(DIK_SPACE)) {
 			sceneState = SceneState::Start;
+			player_->Initialize(modelPlayer_, &camera_, playerPos);
+			rocket_->Initialize(modelRocket, &camera_, rocketPos);
+			soda_->Initialize(modelSoda_, &camera_, playerPos);
 		}
 		break;
 	case GameScene::SceneState::End2:
 		// クリアシーンの更新処理
 		if (input_->TriggerKey(DIK_SPACE)) {
 			sceneState = SceneState::Start;
+			player_->Initialize(modelPlayer_, &camera_, playerPos);
+			rocket_->Initialize(modelRocket, &camera_, rocketPos);
+			soda_->Initialize(modelSoda_, &camera_, playerPos);
 		}
 		break;
 	case GameScene::SceneState::End3:
 		// クリアシーンの更新処理
 		if (input_->TriggerKey(DIK_SPACE)) {
 			sceneState = SceneState::Start;
+			player_->Initialize(modelPlayer_, &camera_, playerPos);
+			rocket_->Initialize(modelRocket, &camera_, rocketPos);
+			soda_->Initialize(modelSoda_, &camera_, playerPos);
 		}
 		break;
 
@@ -325,6 +347,9 @@ void GameScene::Update() {
 		// クリアシーンの更新処理
 		if (input_->TriggerKey(DIK_SPACE)) {
 			sceneState = SceneState::Start;
+			player_->Initialize(modelPlayer_, &camera_, playerPos);
+			rocket_->Initialize(modelRocket, &camera_, rocketPos);
+			soda_->Initialize(modelSoda_, &camera_, playerPos);　　　　　　　　　　　　　　
 		}
 		break;
 	case GameScene::SceneState::Over:
