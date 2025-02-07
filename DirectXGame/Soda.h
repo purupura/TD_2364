@@ -13,24 +13,19 @@ namespace KamataEngine {
 class Input;
 };
 
-class Soda {
+class ShakeSoda {
 public:
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& pos);
 	void Update();
 	void Draw();
-	~Soda();
+	~ShakeSoda();
 	AABB GetAABB();
 	void OnCollision();
 
 	KamataEngine::Vector3 GetWorldPosition();
 
-	static inline const float kWidth = 1.0f;
-	static inline const float kHeight = 1.0f;
-
 private:
-	bool isDead_ = false;
-	bool isR_ = false;
-	bool isL_ = false;
+
 	KamataEngine::WorldTransform worldtransfrom_;
 
 	KamataEngine::Model* model_ = nullptr;
@@ -42,9 +37,6 @@ private:
 
 	KamataEngine::Vector3 velocity_ = {0, 0, 0};
 
-	static inline const float kJumpAcceleration = 1.0f;
-	static inline const float kLimitFallSpeed = 0.03f;
-	bool onGround_ = true;
+	static inline const float shakeMove = 1.0f;
 
-	static inline const float kGravityAcceleration = 0.5f;
 };
